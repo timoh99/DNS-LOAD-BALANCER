@@ -1,0 +1,32 @@
+CREATE DATABASE dns_balancer;
+USE dns_balancer;
+
+CREATE TABLE servers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    ip_address VARCHAR(15) NOT NULL,
+    port INT NOT NULL,
+    weight INT DEFAULT 1,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE health_checks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    server_id INT NOT NULL,
+    status ENUM('healthy', 'unhealthy', 'unknown') DEFAULT 'unknown',
+    response_time INT,
+    checked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
+);
+
+CREATE TABLE logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    type ENUM('health_check', 'request', 'error', 'system') NOT NULL,
+    message TEXT NOT NULL,
+    server_id INT,
+    status VARCHAR(20),
+    response_time INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE SET NULL
+);
